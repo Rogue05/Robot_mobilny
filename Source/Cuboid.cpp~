@@ -1,0 +1,60 @@
+#include "../Headers/Cuboid.hh"
+
+primitive::cuboid::cuboid(){
+	vertices[0] = geom::vec3f(1, 1, 0);
+	vertices[1] = geom::vec3f(11, 1, 0);
+
+	vertices[2] = geom::vec3f(1, 6, 0);
+	vertices[3] = geom::vec3f(11, 6, 0);
+	
+	vertices[4] = geom::vec3f(1, 6, 7);
+	vertices[5] = geom::vec3f(11, 6, 7);
+
+	vertices[6] = geom::vec3f(1, 1, 1);
+	vertices[7] = geom::vec3f(11, 1, 7);
+}
+
+void primitive::cuboid::applyMatrix(geom::mat3x3f & argmat){
+	for (short i = 0; i < 8; i++) vertices[i] = argmat*vertices[i];
+}
+
+void primitive::cuboid::translate(geom::vec3f &transvec){
+	for (short i = 0; i < 8; i++)vertices[i] = vertices[i] + transvec;
+}
+
+std::ostream & primitive::operator<<(std::ostream &output, primitive::cuboid argcub){
+	for (short i = 0; i < 8; i++) output << argcub.vertices[i] << "\n";
+	return output;
+}
+
+#ifdef USE_GNUPLOT
+void primitive::displayCuboidArray(cuboid *argcuboid, unsigned int size){
+	std::fstream file;
+	
+	file.open("Cuboid.txt", std::ios::out);
+	file.clear();
+	for (unsigned int t = 0; t < size; t++) {
+		for (short i = 0; i < 10; i++) file << argcuboid[t].vertices[i % 8] << "\n";
+		for (short i = 0; i < 10; i++) file << argcuboid[t].vertices[(i + 2) % 8] << "\n";
+		file << "#\n";
+	}
+	PzG::LaczeDoGNUPlota lacze;
+	//char ZnakKonca;
+
+	lacze.ZmienTrybRys(PzG::TR_3D);
+	lacze.DodajNazwePliku("Cuboid.txt");
+	lacze.Inicjalizuj();
+
+	lacze.UstawZakresX(-30, 30);
+	lacze.UstawZakresY(-30, 30);
+	lacze.UstawZakresZ(-30, 30);
+
+	lacze.Rysuj();
+
+	file.close();
+}
+#endif
+
+bool primitive::checkLengths(cuboid & argcuboid){
+	return (argcuboid.vertices[0] - argcuboid.vertices[1]).length() == (argcuboid.vertices[4] - argcuboid.vertices[5]).length();
+}
